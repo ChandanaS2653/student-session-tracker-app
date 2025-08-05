@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <meta charset="UTF-8" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        .container {
+            width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .message {
+            font-weight: bold;
+            color: green;
+            margin-top: 15px;
+        }
+        .logout-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Welcome, <span id="usernameDisplay"></span></h2>
+
+    <div id="sessionData">
+        <table>
+            <tr><th>Login Time</th><td id="loginTime">-</td></tr>
+            <tr><th>Logout Time</th><td id="logoutTime">-</td></tr>
+            <tr><th>Session Duration</th><td id="sessionDuration">-</td></tr>
+        </table>
+    </div>
+
+    <button class="logout-btn" onclick="logout()">Logout</button>
+    <div class="message" id="message"></div>
+</div>
+
+<script>
+    const apiBaseUrl = "https://4ervbgxije.execute-api.us-west-2.amazonaws.com/dev";
+    const username = localStorage.getItem("username");
+    const student_id = localStorage.getItem("student_id");
+
+    document.getElementById("usernameDisplay").innerText = username || "Guest";
+
+    if (!username || !student_id) {
+        alert("No user info found. Please login again.");
+        window.location.href = "login.html";
+    }
+
+    async function loadSessionData() {
+        try {
+            const res = await fetch(`${apiBaseUrl}/session`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ student_id })
+            });
+
+            const data = await res.json();
+            if (res.status === 200) {
+                document.getElementById("loginTime").innerText = data.login_time || "-";
+                document.getElementById("logoutTime").innerText = data.logout_time || "-";
+                document.getElementById("sessionDuration").innerText = data.session_duration || "-";
+            } else {
+                document.getElementById("loginTime").innerText = "Error fetching session info.";
+            }
+        } catch (err) {
+            console.error("SESSION FETCH ERROR", err);
+            document.getElementById("loginTime").innerText = "Error fetching session info.";
+        }
+    }
+
+    async function logout() {
+        try {
+            const res = await fetch(`${apiBaseUrl}/logout`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ student_id })
+            });
+
+            const data = await res.json();
+            document.getElementById("message").innerText = data.message || "Logged out.";
+
+            localStorage.clear();
+
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 2000);
+        } catch (err) {
+            document.getElementById("message").innerText = "Error during logout.";
+        }
+    }
+
+    loadSessionData();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <meta charset="UTF-8" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        .container {
+            width: 400px;
+            margin: 80px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+        }
+        button {
+            background: #28a745;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+        .register-link {
+            margin-top: 15px;
+            display: block;
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Student Login</h2>
+    <input type="text" id="student_id" placeholder="Student ID" required />
+    <input type="text" id="username" placeholder="Username" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button onclick="login()">Login</button>
+    <p id="message" style="color: red;"></p>
+
+    <!-- Register link -->
+    <a href="register.html" class="register-link">Don't have an account? Register here</a>
+</div>
+
+<script>
+    const apiBaseUrl = "https://4ervbgxije.execute-api.us-west-2.amazonaws.com/dev";
+
+    async function login() {
+        const student_id = document.getElementById("student_id").value;
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        try {
+            const res = await fetch(`${apiBaseUrl}/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ student_id, username, password })
+            });
+
+            const data = await res.json();
+            if (res.status === 200) {
+                localStorage.setItem("student_id", student_id);
+                localStorage.setItem("username", username);
+                window.location.href = "dashboard.html";
+            } else {
+                document.getElementById("message").innerText = data.message;
+            }
+        } catch (err) {
+            document.getElementById("message").innerText = "Error connecting to server.";
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowLambdaAndCloudFormationAccess",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": ["lambda.amazonaws.com", "cloudformation.amazonaws.com"]
+      },
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::student-session-frontend-01/*"
+    }
+  ]
+}
